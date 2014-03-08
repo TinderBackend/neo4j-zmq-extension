@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class ZerographServer implements Lifecycle {
+public class ZerographServer implements Lifecycle, Runnable {
     public static final String SERVICE_NAME = "ZEROGRAPH_SERVER";
     final static private ArrayList<Thread> instances = new ArrayList<>();
 
@@ -25,6 +25,7 @@ public class ZerographServer implements Lifecycle {
     public GraphDatabaseService database;
 
     public ZerographServer(GraphDatabaseService db, StringLogger logger, HostnamePort hostnamePort, Integer numThreads) {
+        System.out.println("ZG constructor");
         this.logger = logger;
         externalAddress = "tcp://" + hostnamePort.getHost("*")+":"+hostnamePort.getPort();
         this.numThreads=numThreads;
@@ -57,14 +58,16 @@ public class ZerographServer implements Lifecycle {
     }
 
     @Override
-    public synchronized void start() throws Throwable {
+    public void start() throws Throwable {
         Service.WORKER_COUNT = numThreads;
         Service.DATABASE = database;
-        Service.start(port);
+        final Thread runner = new Thread(this);
+        runner.start();
+        System.out.println("ZG start");
     }
 
     @Override
-    public synchronized void stop() throws Throwable {
+    public void stop() throws Throwable {
         Service.stop(port);
 
     }
@@ -74,9 +77,14 @@ public class ZerographServer implements Lifecycle {
         stop();
     }
 
-
-    public synchronized static boolean isRunning(int port) {
-        return instances.size() > 0;
+    @Override
+    public void run () {
+        System.out.println("ZG run");
+        try {
+            Service.start(port);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
