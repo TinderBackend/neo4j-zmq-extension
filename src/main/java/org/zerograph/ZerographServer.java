@@ -11,23 +11,25 @@ import org.neo4j.kernel.impl.util.StringLogger;
 import org.neo4j.kernel.lifecycle.Lifecycle;
 
 import java.io.File;
-
+import java.util.ArrayList;
 
 
 public class ZerographServer implements Lifecycle {
     public static final String SERVICE_NAME = "ZEROGRAPH_SERVER";
-
-    private static final String WORKER_ADDRESS = "inproc://workers";
+    final static private ArrayList<Thread> instances = new ArrayList<>();
 
     private final int numThreads;
-
+    private final int port;
     private final StringLogger logger;
     private final String externalAddress;
+    public GraphDatabaseService database;
 
     public ZerographServer(GraphDatabaseService db, StringLogger logger, HostnamePort hostnamePort, Integer numThreads) {
         this.logger = logger;
         externalAddress = "tcp://" + hostnamePort.getHost("*")+":"+hostnamePort.getPort();
         this.numThreads=numThreads;
+        this.database = db;
+        this.port = hostnamePort.getPort();
     }
 
     public static void main(final String[] args) throws Throwable {
@@ -43,6 +45,9 @@ public class ZerographServer implements Lifecycle {
                 db.shutdown();
             }
         });
+        Service.WORKER_COUNT = 10;
+        Service.DATABASE = db;
+        Service.start(5555);
         mainThread.join();
     }
 
@@ -52,12 +57,16 @@ public class ZerographServer implements Lifecycle {
     }
 
     @Override
-    public void start() throws Throwable {
-
+    public synchronized void start() throws Throwable {
+        Service.WORKER_COUNT = numThreads;
+        Service.DATABASE = database;
+        Service.start(port);
     }
 
     @Override
-    public void stop() throws Throwable {
+    public synchronized void stop() throws Throwable {
+        Service.stop(port);
+
     }
 
     @Override
@@ -65,4 +74,22 @@ public class ZerographServer implements Lifecycle {
         stop();
     }
 
+
+    public synchronized static boolean isRunning(int port) {
+        return instances.size() > 0;
+    }
+
 }
+
+
+/*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+* */

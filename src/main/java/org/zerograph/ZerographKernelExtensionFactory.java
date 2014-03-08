@@ -5,21 +5,13 @@ package org.zerograph;
  */
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.config.Setting;
 import org.neo4j.graphdb.factory.Description;
+import org.neo4j.helpers.HostnamePort;
 import org.neo4j.kernel.configuration.Config;
 import org.neo4j.kernel.extension.KernelExtensionFactory;
 import org.neo4j.kernel.impl.util.StringLogger;
 import org.neo4j.kernel.lifecycle.Lifecycle;
-
-
-import static org.neo4j.helpers.Settings.HOSTNAME_PORT;
-import static org.neo4j.helpers.Settings.INTEGER;
-import static org.neo4j.helpers.Settings.setting;
-
-import org.neo4j.graphdb.config.Setting;
-import org.neo4j.helpers.HostnamePort;
-import org.zerograph.ZerographServer;
-
 
 import static org.neo4j.helpers.Settings.*;
 
