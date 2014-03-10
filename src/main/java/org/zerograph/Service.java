@@ -82,11 +82,11 @@ public class Service implements Lifecycle, Runnable {
     }
 
     public void run() {
-        System.out.println("Starting up " + this.port);
+        System.out.println("Starting up " + this.port + "(" + WORKER_COUNT + "threads)");
         bind();
         startWorkers(WORKER_COUNT);
         ZMQ.proxy(external, internal, null);
-        System.out.println("Shutting down " + this.port);
+        System.out.println("Shutting down " + this.port + "(" + WORKER_COUNT + "threads)");
         external.close();
         internal.close();
         context.term();
