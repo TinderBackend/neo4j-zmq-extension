@@ -41,7 +41,7 @@ public class Service implements Lifecycle, Runnable {
     }
 
     public synchronized static Service start(int port ) throws ServiceAlreadyRunningException {
-
+        System.out.println( "Starting zerograph service on port " + port );
         if (instances.containsKey(port)) {
             throw new ServiceAlreadyRunningException(port);
         } else {
@@ -58,6 +58,7 @@ public class Service implements Lifecycle, Runnable {
     }
 
     public synchronized static void stop(int port) throws ServiceNotRunningException {
+        System.out.println( "Stopping " + WORKER_COUNT + " zerograph workers on port " + port );
         if (instances.containsKey(port)) {
             Thread thread = instances.get(port);
             // TODO: can't kill current db
@@ -79,14 +80,13 @@ public class Service implements Lifecycle, Runnable {
         for(int i = 0; i < count; i++) {
             new Thread(new Worker(this)).start();
         }
+        System.out.println( "Started " + count + " zerograph workers on port " + port );
     }
 
     public void run() {
-        System.out.println("Starting up " + this.port + "(" + WORKER_COUNT + "threads)");
         bind();
         startWorkers(WORKER_COUNT);
         ZMQ.proxy(external, internal, null);
-        System.out.println("Shutting down " + this.port + "(" + WORKER_COUNT + "threads)");
         external.close();
         internal.close();
         context.term();
