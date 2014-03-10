@@ -1,13 +1,14 @@
 package org.zerograph;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.kernel.lifecycle.Lifecycle;
 import org.zerograph.except.ServiceAlreadyRunningException;
 import org.zerograph.except.ServiceNotRunningException;
 import org.zeromq.ZMQ;
 
 import java.util.HashMap;
 
-public class Service implements Runnable {
+public class Service implements Lifecycle, Runnable {
 
     final static private HashMap<Integer, Thread> instances = new HashMap<>(1);
 
@@ -39,7 +40,7 @@ public class Service implements Runnable {
         return instances.containsKey(port);
     }
 
-    public synchronized static void start(int port ) throws ServiceAlreadyRunningException {
+    public synchronized static Service start(int port ) throws ServiceAlreadyRunningException {
 
         if (instances.containsKey(port)) {
             throw new ServiceAlreadyRunningException(port);
@@ -52,6 +53,7 @@ public class Service implements Runnable {
                 throw new ServiceAlreadyRunningException(port);
             }
             instances.put(port, thread);
+            return service ;
         }
     }
 
@@ -84,14 +86,29 @@ public class Service implements Runnable {
         bind();
         startWorkers(WORKER_COUNT);
         ZMQ.proxy(external, internal, null);
-        shutdown();
-    }
-
-    public void shutdown() {
         System.out.println("Shutting down " + this.port);
         external.close();
         internal.close();
         context.term();
+    }
+
+    @Override
+    public void init() throws Throwable {
+
+    }
+
+    @Override
+    public void start() throws Throwable {
+        Service.start(port);
+    }
+
+    @Override
+    public void stop() throws Throwable {
+        Service.stop(port);
+    }
+
+    @Override
+    public void shutdown() {
     }
 
 }

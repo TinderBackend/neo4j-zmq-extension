@@ -20,7 +20,7 @@ public class ZerographKernelExtensionFactory extends KernelExtensionFactory<Zero
 
     @Description("Settings for the Zerograph Server Extension")
     public static abstract class CypherRemotingSettings {
-        public static Setting<HostnamePort> zerograph_address = setting( "zerograph_address", HOSTNAME_PORT, ":5555" );
+        public static Setting<HostnamePort> zerograph_address = setting( "zerograph_address", HOSTNAME_PORT, ":47474" );
         public static Setting<Integer> zerograph_threads = setting( "zerograph_threads", INTEGER, "10");
     }
 
@@ -31,7 +31,11 @@ public class ZerographKernelExtensionFactory extends KernelExtensionFactory<Zero
     @Override
     public Lifecycle newKernelExtension(Dependencies dependencies) throws Throwable {
         Config config = dependencies.getConfig();
-        return new ZerographServer(dependencies.getGraphDatabaseService(),dependencies.getStringLogger(), config.get(CypherRemotingSettings.zerograph_address),config.get(CypherRemotingSettings.zerograph_threads));
+        Service.WORKER_COUNT = config.get(CypherRemotingSettings.zerograph_threads) ;
+        Service.DATABASE = dependencies.getGraphDatabaseService();
+        Integer PORT = config.get(CypherRemotingSettings.zerograph_address).getPort();
+        Service service = new Service(PORT);
+        return service;
     }
 
     public interface Dependencies {

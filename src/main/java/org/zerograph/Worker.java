@@ -31,7 +31,6 @@ public class Worker implements Runnable {
         this.service = service;
         this.database = service.getDatabase();
         this.external = service.getContext().socket(ZMQ.REP);
-        this.external.connect(ADDRESS);
 
         this.cypherResource = new CypherResource(this.database, this.external);
         this.databaseResource = new DatabaseResource(this.database, this.external);
@@ -43,6 +42,7 @@ public class Worker implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
+            this.external.connect(ADDRESS);
             ArrayList<Request> requests = new ArrayList<>();
             // parse requests
             try {
