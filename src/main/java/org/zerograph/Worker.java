@@ -108,7 +108,7 @@ public class Worker implements Runnable {
 
     public boolean send(Response response) {
         String string = response.toString();
-        System.out.println(">>> " + string);
+        //System.out.println(">>> " + string);
         return external.send(string);
     }
 

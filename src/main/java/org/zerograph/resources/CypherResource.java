@@ -35,7 +35,7 @@ public class CypherResource extends Resource {
         try {
             ExecutionResult result = execute(query);
             List<String> columns = result.columns();
-            sendContinue(columns.toArray(new Object[columns.size()]));
+            sendContinue(columns);
             PropertyContainer firstEntity = null;
             int rowNumber = 0;
             for (Map<String, Object> row : result) {
@@ -43,7 +43,7 @@ public class CypherResource extends Resource {
                 for (String column : columns) {
                     values.add(row.get(column));
                 }
-                sendContinue(values.toArray(new Object[values.size()]));
+                sendContinue(values);
                 if (rowNumber == 0) {
                     Object firstValue = values.get(0);
                     if (firstValue instanceof PropertyContainer) {
@@ -63,3 +63,28 @@ public class CypherResource extends Resource {
     }
 
 }
+
+
+/*
+        if (it.hasNext()) {
+            try {
+                final Map<String, Object> current = it.next();
+                for (int i = 0; i < columns.size(); i++) {
+                    final Object value = current.get(columns.get(i));
+                    data.set(i, convert(value));
+                }
+                if (it.hasNext() || returnStats()) {
+                    row++;
+                } else {
+                    row=LAST;
+                }
+                return data;
+            } catch(Exception e) {
+                exception = e;
+                it = emptyIterator();
+                return info();
+            }
+        } else {
+            return info();
+        }
+*/

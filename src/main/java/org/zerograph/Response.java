@@ -37,6 +37,7 @@ public class Response {
             try {
                 builder.append(Data.encode(datum));
             } catch (IOException ex) {
+                ex.printStackTrace();
                 builder.append('?');  // TODO
             }
         }
