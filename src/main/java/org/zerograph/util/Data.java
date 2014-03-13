@@ -63,11 +63,11 @@ public class Data {
         if (value == null) return null;
         if (value instanceof Node) {
             final Node node = (Node) value;
-            return returnWithProps(map("$neo_type","NODE","id", node.getId()), node);
+            return map("$neo_type","NODE","id",node.getId(),"labels",labels(node),"properties",properties(node));
         }
         if (value instanceof Relationship) {
             Relationship relationship = (Relationship) value;
-            return returnWithProps(map("$neo_type","REL","id", relationship.getId(), "start", relationship.getStartNode().getId(), "end", relationship.getEndNode().getId(), "type", relationship.getType().name()), relationship);
+            return map("$neo_type", "REL", "id", relationship.getId(), "properties", properties(relationship), "start", relationship.getStartNode().getId(), "end", relationship.getEndNode().getId(), "type", relationship.getType().name());
         }
         if (value instanceof Path) {
             Path path = (Path) value;
@@ -100,15 +100,9 @@ public class Data {
             return result;
         }
         return value;
-    }
+}
+    
 
-    private static Object returnWithProps(Map<String, Object> result, PropertyContainer pc) {
-        final Map<String, Object> props = toMap(pc);
-        if (props!=null) {
-            result.put("properties",props);
-        }
-        return result;
-    }
     private static Map<String,Object> toMap(PropertyContainer pc) {
         final Iterator<String> propertyKeys = pc.getPropertyKeys().iterator();
         if (!propertyKeys.hasNext()) return null;
@@ -128,5 +122,21 @@ public class Data {
             }
         }
         return result;
+    }
+
+    private static List<String> labels(Node node) {
+        ArrayList<String> labelList = new ArrayList<>();
+        for (Label label : node.getLabels()) {
+            labelList.add(label.name());
+        }
+        return labelList;
+    }
+
+    private static Map<String, Object> properties(PropertyContainer entity) {
+        HashMap<String, Object> propertyMap = new HashMap<>();
+        for (String key : entity.getPropertyKeys()) {
+            propertyMap.put(key, entity.getProperty(key));
+        }
+        return propertyMap;
     }
 }

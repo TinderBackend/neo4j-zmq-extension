@@ -38,7 +38,7 @@ public class NodeResourceTest extends ResourceTest {
     @Test
     public void testCanGetExistingNode() throws ClientError, ServerError {
         String rq = "GET\tnode\t0";
-        String rs = "200\t/*Node*/{\"id\":0,\"labels\":[\"Person\"],\"properties\":{\"name\":\"Alice\"}}";
+        String rs = "200\t{\"id\":0,\"$neo_type\":\"NODE\",\"labels\":[\"Person\"],\"properties\":{\"name\":\"Alice\"}}";
         try (Transaction tx = database.beginTx()) {
             Node created = createAlice();
             assert created.getId() == 0;
@@ -69,7 +69,7 @@ public class NodeResourceTest extends ResourceTest {
     @Test
     public void testCanPutExistingNode() throws ClientError, ServerError {
         String rq = "PUT\tnode\t0\t[\"Person\"]\t{\"name\":\"Alice\"}";
-        String rs = "200\t/*Node*/{\"id\":0,\"labels\":[\"Person\"],\"properties\":{\"name\":\"Alice\"}}";
+        String rs = "200\t{\"id\":0,\"$neo_type\":\"NODE\",\"labels\":[\"Person\"],\"properties\":{\"name\":\"Alice\"}}";
         try (Transaction tx = database.beginTx()) {
             Node created = database.createNode();
             assert created.getId() == 0;
@@ -100,7 +100,7 @@ public class NodeResourceTest extends ResourceTest {
     @Test
     public void testCanPatchExistingNode() throws ClientError, ServerError {
         String rq = "PATCH\tnode\t0\t[\"Female\"]\t{\"age\":33}";
-        String rs = "200\t/*Node*/{\"id\":0,\"labels\":[\"Person\",\"Female\"],\"properties\":{\"name\":\"Alice\",\"age\":33}}";
+        String rs = "200\t{\"id\":0,\"$neo_type\":\"NODE\",\"labels\":[\"Person\",\"Female\"],\"properties\":{\"name\":\"Alice\",\"age\":33}}";
         try (Transaction tx = database.beginTx()) {
             Node created = createAlice();
             assert created.getId() == 0;
@@ -135,7 +135,7 @@ public class NodeResourceTest extends ResourceTest {
     @Test
     public void testCanCreateNode() throws ClientError, ServerError {
         String rq = "POST\tnode\t[\"Person\"]\t{\"name\":\"Alice\"}";
-        String rs = "201\t/*Node*/{\"id\":0,\"labels\":[\"Person\"],\"properties\":{\"name\":\"Alice\"}}";
+        String rs = "201\t{\"id\":0,\"$neo_type\":\"NODE\",\"labels\":[\"Person\"],\"properties\":{\"name\":\"Alice\"}}";
         try (Transaction tx = database.beginTx()) {
             PropertyContainer created = resource.post(tx, new Request(rq));
             assert created instanceof Node;
