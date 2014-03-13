@@ -1,4 +1,6 @@
-# Zerograph-Extension
+# neo4j-zmq-extension
+
+This project heavily draws from the wonderful work done by Nigel Small on ZeroGraph, and by Michael Hunger on cypher_remoting_experiments and cypher_websocket_endpoint. This is an initial implementation of ZeroMQ as an RPC transport to communicate with Neo4j (server or embedded).
 
 ## KernelExtension
 
@@ -16,14 +18,4 @@ To run the server standalone (not as an extension):
 
 ```bash
 $ ./server.sh
-```
-
-## Client
-
-To run the Python test shell:
-
-```bash
-$ pip3 install pyzmq
-$ cd python3-client
-$ python3 -m zerograph.shell
 ```
