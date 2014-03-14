@@ -83,7 +83,7 @@ public abstract class Resource {
 
     private void send(Response response) {
         String string = response.toString();
-        System.out.println(">>> " + string);
+        //System.out.println(">>> " + string);
         socket.sendMore(string);
     }
 

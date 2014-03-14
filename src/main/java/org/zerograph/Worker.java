@@ -51,7 +51,7 @@ public class Worker implements Runnable {
                     String frame = external.recvStr();
                     for (String line : frame.split("\\r|\\n|\\r\\n")) {
                         if (line.length() > 0) {
-                            System.out.println("<<< " + line);
+                            //System.out.println("<<< " + line);
                             requests.add(new Request(line));
                         }
                     }

@@ -32,8 +32,9 @@ public class CypherResource extends Resource {
     @Override
     public PropertyContainer post(Transaction tx, Request request) throws ClientError, ServerError {
         String query = request.getStringData(0);
+        Map params = request.getMapData(1);
         try {
-            ExecutionResult result = execute(query);
+            ExecutionResult result = execute(query,params);
             List<String> columns = result.columns();
             sendContinue(columns);
             PropertyContainer firstEntity = null;
@@ -63,28 +64,3 @@ public class CypherResource extends Resource {
     }
 
 }
-
-
-/*
-        if (it.hasNext()) {
-            try {
-                final Map<String, Object> current = it.next();
-                for (int i = 0; i < columns.size(); i++) {
-                    final Object value = current.get(columns.get(i));
-                    data.set(i, convert(value));
-                }
-                if (it.hasNext() || returnStats()) {
-                    row++;
-                } else {
-                    row=LAST;
-                }
-                return data;
-            } catch(Exception e) {
-                exception = e;
-                it = emptyIterator();
-                return info();
-            }
-        } else {
-            return info();
-        }
-*/
