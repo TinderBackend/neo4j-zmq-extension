@@ -3,6 +3,7 @@ package org.zerograph.resources;
 import org.neo4j.cypher.CypherException;
 import org.neo4j.cypher.EntityNotFoundException;
 import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.cypher.javacompat.QueryStatistics;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Transaction;
@@ -13,6 +14,7 @@ import org.zerograph.except.ServerError;
 import org.zeromq.ZMQ;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,8 @@ public class CypherResource extends Resource {
     public PropertyContainer post(Transaction tx, Request request) throws ClientError, ServerError {
         String query = request.getStringData(0);
         Map params = request.getMapData(1);
+        Map stats = new HashMap();
+        long startTime=System.currentTimeMillis();
         try {
             ExecutionResult result = execute(query,params);
             List<String> columns = result.columns();
@@ -53,7 +57,26 @@ public class CypherResource extends Resource {
                 }
                 rowNumber += 1;
             }
-            sendOK();
+            if (result != null) {
+                final QueryStatistics queryStats = result.getQueryStatistics();
+                if (queryStats != null && queryStats.containsUpdates()) {
+                    stats.put("updates", true);
+                    putIfValue(stats, "constraints_added", queryStats.getConstraintsAdded());
+                    putIfValue(stats, "constraints_removed", queryStats.getConstraintsRemoved());
+                    putIfValue(stats, "indexes_added", queryStats.getIndexesAdded());
+                    putIfValue(stats, "indexes_removed", queryStats.getIndexesRemoved());
+                    putIfValue(stats, "labels_added", queryStats.getLabelsAdded());
+                    putIfValue(stats, "labels_removed", queryStats.getLabelsRemoved());
+                    putIfValue(stats, "nodes_deleted", queryStats.getDeletedNodes());
+                    putIfValue(stats, "nodes_created", queryStats.getNodesCreated());
+                    putIfValue(stats, "rels_created", queryStats.getRelationshipsCreated());
+                    putIfValue(stats, "rels_deleted", queryStats.getDeletedRelationships());
+                    putIfValue(stats, "props_set", queryStats.getPropertiesSet());
+                }
+            }
+            long endTime=System.currentTimeMillis();
+            stats.put("execution_time",endTime-startTime);
+            sendOK(stats);
             return firstEntity;
         } catch (EntityNotFoundException ex) {
             throw new ClientError(new Response(Response.NOT_FOUND, ex.getMessage()));
@@ -62,5 +85,9 @@ public class CypherResource extends Resource {
             throw new ClientError(new Response(Response.BAD_REQUEST, ex.getMessage()));
         }
     }
-
+    private void putIfValue(Map<String, Object> result, String name, int value) {
+        if (value >0) {
+            result.put(name, value);
+        }
+    }
 }
