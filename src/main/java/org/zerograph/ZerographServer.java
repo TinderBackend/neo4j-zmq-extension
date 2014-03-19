@@ -11,6 +11,8 @@ import org.neo4j.kernel.impl.util.StringLogger;
 
 import java.io.File;
 
+import static org.neo4j.helpers.Settings.*;
+
 
 public class ZerographServer {
     public static final String SERVICE_NAME = "ZEROGRAPH_SERVER";
@@ -23,7 +25,7 @@ public class ZerographServer {
         final File directory = new File(args[0]);
         boolean newDB=!directory.exists();
         System.out.println("Using database "+directory+" new "+newDB);
-        final GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( args[0] );
+        final GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(args[0]).setConfig(setting("zerograph_enabled",BOOLEAN,"true"),"true").newGraphDatabase();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

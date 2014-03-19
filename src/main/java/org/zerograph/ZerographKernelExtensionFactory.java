@@ -16,12 +16,14 @@ import org.neo4j.kernel.lifecycle.Lifecycle;
 import static org.neo4j.helpers.Settings.*;
 
 
+
 public class ZerographKernelExtensionFactory extends KernelExtensionFactory<ZerographKernelExtensionFactory.Dependencies> {
 
     @Description("Settings for the Zerograph Server Extension")
-    public static abstract class CypherRemotingSettings {
+    public static abstract class ZerographSettings {
         public static Setting<HostnamePort> zerograph_address = setting( "zerograph_address", HOSTNAME_PORT, ":47474" );
         public static Setting<Integer> zerograph_threads = setting( "zerograph_threads", INTEGER, "10");
+        public static Setting<Boolean> zerograph_enabled = setting( "zerograph_enabled", BOOLEAN, "false" );
     }
 
     public ZerographKernelExtensionFactory() {
@@ -31,16 +33,45 @@ public class ZerographKernelExtensionFactory extends KernelExtensionFactory<Zero
     @Override
     public Lifecycle newKernelExtension(Dependencies dependencies) throws Throwable {
         Config config = dependencies.getConfig();
-        Service.WORKER_COUNT = config.get(CypherRemotingSettings.zerograph_threads) ;
-        Service.DATABASE = dependencies.getGraphDatabaseService();
-        Integer PORT = config.get(CypherRemotingSettings.zerograph_address).getPort();
-        Service service = new Service(PORT);
-        return service;
+        Boolean enabled = config.get(ZerographSettings.zerograph_enabled);
+        if (enabled) {
+            Service.WORKER_COUNT = config.get(ZerographSettings.zerograph_threads) ;
+            Service.DATABASE = dependencies.getGraphDatabaseService();
+            Integer PORT = config.get(ZerographSettings.zerograph_address).getPort();
+            Service service = new Service(PORT);
+            return service;
+        } else {
+            return new FakeLifecycle();
+        }
     }
 
     public interface Dependencies {
         GraphDatabaseService getGraphDatabaseService();
         StringLogger getStringLogger();
         Config getConfig();
+    }
+}
+
+
+class FakeLifecycle implements Lifecycle{
+
+    @Override
+    public void init() throws Throwable {
+
+    }
+
+    @Override
+    public void start() throws Throwable {
+
+    }
+
+    @Override
+    public void stop() throws Throwable {
+
+    }
+
+    @Override
+    public void shutdown() throws Throwable {
+
     }
 }
