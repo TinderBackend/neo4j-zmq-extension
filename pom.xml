@@ -7,8 +7,18 @@
     <groupId>org.neozmq</groupId>
     <artifactId>neo4j-zmq-extension</artifactId>
     <version>1.0-SNAPSHOT</version>
-
+    <repositories>
+        <repository>
+            <id>org.zeromq</id>
+            <url>file://usr/local/share/java/zmq.jar</url>
+        </repository>
+    </repositories>
     <dependencies>
+        <dependency>
+            <groupId>org.zeromq</groupId>
+            <artifactId>jzmq</artifactId>
+            <version>3.0.1</version>
+        </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-cypher</artifactId>

@@ -9,9 +9,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.zeromq:jeromq:0.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.zeromq:jzmq:3.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.neo4j:neo4j-cypher:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.neo4j:neo4j-kernel:2.0.1" level="project" />
