@@ -1,4 +1,4 @@
-package org.zerograph.resources;
+package org.neozmq.resources;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.PropertyContainer;

@@ -1,12 +1,12 @@
-package org.zerograph.resources;
+package org.neozmq.resources;
 
 import org.neo4j.cypher.CypherException;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.*;
-import org.zerograph.Request;
-import org.zerograph.Response;
-import org.zerograph.except.ClientError;
-import org.zerograph.except.ServerError;
+import org.neozmq.Request;
+import org.neozmq.Response;
+import org.neozmq.except.ClientError;
+import org.neozmq.except.ServerError;
 import org.zeromq.ZMQ;
 
 import java.util.HashMap;

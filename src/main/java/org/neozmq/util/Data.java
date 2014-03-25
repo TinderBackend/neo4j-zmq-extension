@@ -1,4 +1,4 @@
-package org.zerograph.util;
+package org.neozmq.util;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.neo4j.graphdb.*;

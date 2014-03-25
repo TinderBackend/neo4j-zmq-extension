@@ -1,4 +1,4 @@
-package org.zerograph.except;
+package org.neozmq.except;
 
 public class ServiceNotRunningException extends ServiceException {
 

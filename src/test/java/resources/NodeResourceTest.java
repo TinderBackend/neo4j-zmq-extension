@@ -3,10 +3,10 @@ package resources;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.*;
-import org.zerograph.Request;
-import org.zerograph.except.ClientError;
-import org.zerograph.except.ServerError;
-import org.zerograph.resources.NodeResource;
+import org.neozmq.Request;
+import org.neozmq.except.ClientError;
+import org.neozmq.except.ServerError;
+import org.neozmq.resources.NodeResource;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;

@@ -1,6 +1,6 @@
-package org.zerograph.except;
+package org.neozmq.except;
 
-import org.zerograph.Response;
+import org.neozmq.Response;
 
 public class ServerError extends Exception {
 

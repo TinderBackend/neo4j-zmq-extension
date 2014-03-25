@@ -1,6 +1,6 @@
-package org.zerograph;
+package org.neozmq;
 
-import org.zerograph.util.Data;
+import org.neozmq.util.Data;
 
 import java.io.IOException;
 

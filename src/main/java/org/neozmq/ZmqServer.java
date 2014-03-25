@@ -1,4 +1,4 @@
-package org.zerograph;
+package org.neozmq;
 
 /**
  * Created by gabriellipson on 3/7/14.
@@ -14,18 +14,17 @@ import java.io.File;
 import static org.neo4j.helpers.Settings.*;
 
 
-public class ZerographServer {
-    public static final String SERVICE_NAME = "ZEROGRAPH_SERVER";
+public class ZmqServer {
     public GraphDatabaseService database;
 
-    public ZerographServer(GraphDatabaseService db, StringLogger logger, HostnamePort hostnamePort, Integer numThreads) {
+    public ZmqServer(GraphDatabaseService db, StringLogger logger, HostnamePort hostnamePort, Integer numThreads) {
     }
 
     public static void main(final String[] args) throws Throwable {
         final File directory = new File(args[0]);
         boolean newDB=!directory.exists();
         System.out.println("Using database "+directory+" new "+newDB);
-        final GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(args[0]).setConfig(setting("zerograph_enabled",BOOLEAN,"true"),"true").newGraphDatabase();
+        final GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(args[0]).setConfig(setting("zmq_enabled",BOOLEAN,"true"),"true").newGraphDatabase();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

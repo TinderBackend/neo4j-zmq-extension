@@ -1,4 +1,4 @@
-package org.zerograph.util;
+package org.neozmq.util;
 
 public class Pointer {
 

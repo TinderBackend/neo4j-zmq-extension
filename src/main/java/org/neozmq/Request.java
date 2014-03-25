@@ -1,10 +1,10 @@
-package org.zerograph;
+package org.neozmq;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.neo4j.graphdb.PropertyContainer;
-import org.zerograph.except.ClientError;
-import org.zerograph.util.Data;
-import org.zerograph.util.Pointer;
+import org.neozmq.except.ClientError;
+import org.neozmq.util.Data;
+import org.neozmq.util.Pointer;
 
 import java.io.IOException;
 import java.util.ArrayList;

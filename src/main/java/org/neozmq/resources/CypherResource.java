@@ -1,4 +1,4 @@
-package org.zerograph.resources;
+package org.neozmq.resources;
 
 import org.neo4j.cypher.CypherException;
 import org.neo4j.cypher.EntityNotFoundException;
@@ -7,10 +7,10 @@ import org.neo4j.cypher.javacompat.QueryStatistics;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Transaction;
-import org.zerograph.Request;
-import org.zerograph.Response;
-import org.zerograph.except.ClientError;
-import org.zerograph.except.ServerError;
+import org.neozmq.Request;
+import org.neozmq.Response;
+import org.neozmq.except.ClientError;
+import org.neozmq.except.ServerError;
 import org.zeromq.ZMQ;
 
 import java.util.ArrayList;

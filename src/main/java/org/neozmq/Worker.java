@@ -1,11 +1,15 @@
-package org.zerograph;
+package org.neozmq;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransactionFailureException;
-import org.zerograph.except.ClientError;
-import org.zerograph.resources.*;
+import org.neo4j.kernel.impl.util.StringLogger;
+import org.neozmq.except.ClientError;
+import org.neozmq.resources.CypherResource;
+import org.neozmq.resources.NodeResource;
+import org.neozmq.resources.NodeSetResource;
+import org.neozmq.resources.RelResource;
 import org.zeromq.ZMQ;
 
 import java.nio.charset.Charset;
@@ -14,27 +18,25 @@ import java.util.UUID;
 
 public class Worker implements Runnable {
 
-    final public static String ADDRESS = "inproc://workers";
-
     final private UUID uuid;
-    final private Service service;
     final private GraphDatabaseService database;
     final private ZMQ.Socket external;
 
     final private CypherResource cypherResource;
-    final private DatabaseResource databaseResource;
     final private NodeResource nodeResource;
     final private NodeSetResource nodeSetResource;
     final private RelResource relResource;
 
-    public Worker(Service service) {
-        this.uuid = UUID.randomUUID();
-        this.service = service;
-        this.database = service.getDatabase();
-        this.external = service.getContext().socket(ZMQ.REP);
+    private String address = null;
+    private StringLogger logger = null;
 
+    public Worker( ZmqKernelExtensionFactory.Dependencies deps, ZMQ.Context ctx, String addr ) {
+        this.uuid = UUID.randomUUID();
+        this.database = deps.getGraphDatabaseService();
+        this.logger = deps.getStringLogger();
+        this.external = ctx.socket(ZMQ.REP);
+        this.address = addr;
         this.cypherResource = new CypherResource(this.database, this.external);
-        this.databaseResource = new DatabaseResource(this.database, this.external);
         this.nodeResource = new NodeResource(this.database, this.external);
         this.nodeSetResource = new NodeSetResource(this.database, this.external);
         this.relResource = new RelResource(this.database, this.external);
@@ -43,7 +45,7 @@ public class Worker implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-            this.external.connect(ADDRESS);
+            this.external.connect(address);
             ArrayList<Request> requests = new ArrayList<>();
             // parse requests
             try {
@@ -65,16 +67,12 @@ public class Worker implements Runnable {
             // handle requests
             ArrayList<PropertyContainer> outputValues = new ArrayList<>(requests.size());
             try {
-                System.out.println("--- Beginning transaction in worker " + this.uuid.toString() + " ---");
                 try (Transaction tx = database.beginTx()) {
                     for (Request request : requests) {
                         request.resolvePointers(outputValues);
                         switch (request.getResource()) {
                             case CypherResource.NAME:
                                 outputValues.add(cypherResource.handle(tx, request));
-                                break;
-                            case DatabaseResource.NAME:
-                                outputValues.add(databaseResource.handle(tx, request));
                                 break;
                             case NodeResource.NAME:
                                 outputValues.add(nodeResource.handle(tx, request));
@@ -92,20 +90,28 @@ public class Worker implements Runnable {
                     tx.success();
                 }
                 send(new Response(Response.OK));
-                System.out.println("--- Successfully completed transaction in worker " + this.uuid.toString() + " ---");
             } catch (IllegalArgumentException ex) {
                 send(new Response(Response.BAD_REQUEST, ex.getMessage()));
+                logger.info("--- Failed transaction in worker " + this.uuid.toString() + " ---");
+                logger.info(Response.BAD_REQUEST + " " + ex.getMessage() );
             } catch (TransactionFailureException ex) {
-                send(new Response(Response.CONFLICT, ex.getMessage()));  // TODO - derive cause from nested Exceptions
+                send(new Response(Response.CONFLICT, ex.getMessage()));
+                logger.info("--- Failed transaction in worker " + this.uuid.toString() + " ---");
+                logger.info(Response.CONFLICT + " " + ex.getMessage() );
             } catch (ClientError ex) {
                 send(ex.getResponse());
+                logger.info("--- Failed transaction in worker " + this.uuid.toString() + " ---");
+                logger.info(Response.BAD_REQUEST + " " + ex.getMessage() );
             } catch (Exception ex) {
                 send(new Response(Response.SERVER_ERROR, ex.getMessage()));
+                logger.info("--- Failed transaction in worker " + this.uuid.toString() + " ---");
+                logger.info(Response.SERVER_ERROR+ " " + ex.getMessage() );
             } finally {
-                System.out.println();
             }
         }
     }
+
+
 
     public boolean send(Response response) {
         String string = response.toString();

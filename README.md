@@ -7,9 +7,9 @@ This project heavily draws from the wonderful work done by Nigel Small on ZeroGr
 To run as a kernel extension, package and add to /plugins
 
 ```bash
-$ cd neo4j_zerograph_extension
+$ cd neo4j_zmq_extension
 $ mvn clean package
-$ cp target/neo4j_zerograph_extension-1.0-SNAPSHOT-jar-with-dependencies.jar $NEO4J_HOME/plugins/zg_extension.jar
+$ cp target/neo4j_zmq_extension-1.0-SNAPSHOT-jar-with-dependencies.jar $NEO4J_HOME/plugins/zg_extension.jar
 $ neo4j restart
 ```
 ## Server
