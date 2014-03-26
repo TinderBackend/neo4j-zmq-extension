@@ -13,6 +13,10 @@
             <url>file://usr/local/share/java/zmq.jar</url>
         </repository>
     </repositories>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.zeromq</groupId>
@@ -46,14 +50,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <forkMode>once</forkMode>
-                    <argLine>-Djava.library.path=/usr/local/lib</argLine>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>

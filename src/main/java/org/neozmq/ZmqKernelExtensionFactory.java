@@ -35,7 +35,7 @@ public class ZmqKernelExtensionFactory extends KernelExtensionFactory<ZmqKernelE
         Config config = dependencies.getConfig();
         Boolean enabled = config.get(ZmqSettings.zmq_enabled);
         if (enabled) {
-            return new ZmqLifecycle(dependencies);
+            return new ZmqKernelExtension(dependencies);
         } else {
             return new FakeLifecycle();
         }

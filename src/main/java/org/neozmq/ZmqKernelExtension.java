@@ -5,7 +5,7 @@ import org.zeromq.ZMQ;
 
 import java.util.ArrayList;
 
-public class ZmqLifecycle implements Lifecycle, Runnable {
+public class ZmqKernelExtension implements Lifecycle, Runnable {
 
     private ZmqKernelExtensionFactory.Dependencies DEPS = null;
     private Integer THREAD_CT = null;
@@ -19,7 +19,7 @@ public class ZmqLifecycle implements Lifecycle, Runnable {
     private ZMQ.Socket external = null;
     private ZMQ.Socket internal = null;
 
-    public ZmqLifecycle(ZmqKernelExtensionFactory.Dependencies deps) {
+    public ZmqKernelExtension(ZmqKernelExtensionFactory.Dependencies deps) {
         this.DEPS = deps;
         this.THREAD_CT = DEPS.getConfig().get(ZmqKernelExtensionFactory.ZmqSettings.zmq_threads);
         this.PORT = DEPS.getConfig().get(ZmqKernelExtensionFactory.ZmqSettings.zmq_address).getPort();
@@ -30,7 +30,7 @@ public class ZmqLifecycle implements Lifecycle, Runnable {
         System.out.println("CONSTRUCTOR CALLED");
     }
     @Override
-    public void init() throws Throwable {
+    public synchronized void init() throws Throwable {
         System.out.println("INIT CALLED");
         startWorkers();
         new Thread(this).start();
@@ -53,15 +53,7 @@ public class ZmqLifecycle implements Lifecycle, Runnable {
     @Override
     public void shutdown() {
         System.out.println("SHUTDOWN CALLED");
-        /*
-        System.out.println("Stopping " + THREADS.size() + " zmq workers on port " + PORT);
-        while(THREADS.size()>THREAD_CT) {
-            Thread t = THREADS.get(0);
-            t.interrupt();
-            THREADS.remove(0);
-        }
         CONTEXT.term();
-        */
     }
 
     @Override
@@ -69,7 +61,7 @@ public class ZmqLifecycle implements Lifecycle, Runnable {
         System.out.println("RUN CALLED");
         ZMQ.proxy(external, internal, null);
     }
-    public synchronized void startWorkers (){
+    private synchronized void startWorkers (){
         System.out.println("Starting "+ THREAD_CT +" zmq workers on port " + PORT);
         while(THREADS.size()<THREAD_CT) {
             Thread t = new Thread(new Worker(DEPS,CONTEXT,INTERNAL_ADDRESS));
@@ -78,4 +70,16 @@ public class ZmqLifecycle implements Lifecycle, Runnable {
         }
         System.out.println("Started "+ THREAD_CT +" zmq workers on port " + PORT);
     }
+
+    private synchronized void stopWorkers () {
+        System.out.println("Stopping " + THREADS.size() + " zmq workers on port " + PORT);
+        while(THREADS.size()>0) {
+            Thread t = THREADS.get(0);
+            t.interrupt();
+            THREADS.remove(0);
+        }
+        System.out.println("Stopped " + THREAD_CT + " zmq workers on port " + PORT);
+
+    }
+
 }

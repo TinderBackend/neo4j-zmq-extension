@@ -11,6 +11,7 @@ import org.neozmq.resources.NodeResource;
 import org.neozmq.resources.NodeSetResource;
 import org.neozmq.resources.RelResource;
 import org.zeromq.ZMQ;
+import org.zeromq.ZMQException;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class Worker implements Runnable {
     final private NodeSetResource nodeSetResource;
     final private RelResource relResource;
 
+    private ZMQ.Context context;
     private String address = null;
     private StringLogger logger = null;
 
@@ -35,6 +37,7 @@ public class Worker implements Runnable {
         this.database = deps.getGraphDatabaseService();
         this.logger = deps.getStringLogger();
         this.external = ctx.socket(ZMQ.REP);
+        this.context = ctx;
         this.address = addr;
         this.cypherResource = new CypherResource(this.database, this.external);
         this.nodeResource = new NodeResource(this.database, this.external);
@@ -44,8 +47,8 @@ public class Worker implements Runnable {
 
     @Override
     public void run() {
+        this.external.connect(address);
         while (!Thread.currentThread().isInterrupted()) {
-            this.external.connect(address);
             ArrayList<Request> requests = new ArrayList<>();
             // parse requests
             try {
@@ -63,6 +66,10 @@ public class Worker implements Runnable {
             } catch (ClientError ex) {
                 send(ex.getResponse());
                 continue;
+            } catch (ZMQException ex) {
+                external.close();
+                Thread.currentThread().interrupt();
+                return;
             }
             // handle requests
             ArrayList<PropertyContainer> outputValues = new ArrayList<>(requests.size());
@@ -109,6 +116,7 @@ public class Worker implements Runnable {
             } finally {
             }
         }
+        System.out.println("stopping thread");
     }
 
 
