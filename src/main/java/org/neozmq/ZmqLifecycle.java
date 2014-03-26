@@ -24,36 +24,36 @@ public class ZmqLifecycle implements Lifecycle, Runnable {
         this.THREAD_CT = DEPS.getConfig().get(ZmqKernelExtensionFactory.ZmqSettings.zmq_threads);
         this.PORT = DEPS.getConfig().get(ZmqKernelExtensionFactory.ZmqSettings.zmq_address).getPort();
         this.EXTERNAL_ADDRESS = "tcp://*:" + PORT;
+        this.CONTEXT = ZMQ.context(1);
+        this.external = CONTEXT.socket(ZMQ.ROUTER);
+        this.internal = CONTEXT.socket(ZMQ.DEALER);
+        System.out.println("CONSTRUCTOR CALLED");
     }
     @Override
     public void init() throws Throwable {
-    }
-
-    @Override
-    public void start() {
+        System.out.println("INIT CALLED");
+        startWorkers();
         new Thread(this).start();
     }
 
     @Override
-    public void stop() {
+    public void start() {
+        System.out.println("START CALLED");
+        this.internal.bind(INTERNAL_ADDRESS);
+        this.external.bind(EXTERNAL_ADDRESS);
+    }
 
+    @Override
+    public void stop() {
+        System.out.println("STOP CALLED");
+        this.external.close();
+        this.internal.close();
     }
 
     @Override
     public void shutdown() {
-    }
-
-    @Override
-    public void run() {
-        this.CONTEXT = ZMQ.context(1);
-        this.external = CONTEXT.socket(ZMQ.ROUTER);
-        this.external.bind(EXTERNAL_ADDRESS);
-        this.internal = CONTEXT.socket(ZMQ.DEALER);
-        this.internal.bind(INTERNAL_ADDRESS);
-        startWorkers();
-        ZMQ.proxy(external, internal, null);
-        external.close();
-        internal.close();
+        System.out.println("SHUTDOWN CALLED");
+        /*
         System.out.println("Stopping " + THREADS.size() + " zmq workers on port " + PORT);
         while(THREADS.size()>THREAD_CT) {
             Thread t = THREADS.get(0);
@@ -61,6 +61,13 @@ public class ZmqLifecycle implements Lifecycle, Runnable {
             THREADS.remove(0);
         }
         CONTEXT.term();
+        */
+    }
+
+    @Override
+    public void run() {
+        System.out.println("RUN CALLED");
+        ZMQ.proxy(external, internal, null);
     }
     public synchronized void startWorkers (){
         System.out.println("Starting "+ THREAD_CT +" zmq workers on port " + PORT);
