@@ -7,17 +7,16 @@ import java.util.ArrayList;
 
 public class ZmqKernelExtension implements Lifecycle, Runnable {
 
-    private ZmqKernelExtensionFactory.Dependencies DEPS = null;
-    private Integer THREAD_CT = null;
-    private ZMQ.Context CONTEXT = null;
-    private ArrayList<Thread> THREADS = new ArrayList<>();
-    private String EXTERNAL_ADDRESS = null;
-    private Integer PORT = null;
-    final public static String INTERNAL_ADDRESS = "inproc://workers";
+    public final static String INTERNAL_ADDRESS = "inproc://workers";
 
-
-    private ZMQ.Socket external = null;
-    private ZMQ.Socket internal = null;
+    private final ZmqKernelExtensionFactory.Dependencies DEPS;
+    private final Integer THREAD_CT;
+    private final ZMQ.Context CONTEXT;
+    private final ArrayList<Worker> WORKERS = new ArrayList<Worker>();
+    private final String EXTERNAL_ADDRESS;
+    private final Integer PORT;
+    private final ZMQ.Socket external;
+    private final ZMQ.Socket internal;
 
     public ZmqKernelExtension(ZmqKernelExtensionFactory.Dependencies deps) {
         this.DEPS = deps;
@@ -27,58 +26,60 @@ public class ZmqKernelExtension implements Lifecycle, Runnable {
         this.CONTEXT = ZMQ.context(1);
         this.external = CONTEXT.socket(ZMQ.ROUTER);
         this.internal = CONTEXT.socket(ZMQ.DEALER);
-        System.out.println("CONSTRUCTOR CALLED");
+        this.internal.bind(INTERNAL_ADDRESS);
+        this.external.bind(EXTERNAL_ADDRESS);
+        System.out.println("ZMQ: CONSTRUCTOR CALLED");
     }
     @Override
     public synchronized void init() throws Throwable {
-        System.out.println("INIT CALLED");
-        startWorkers();
+        System.out.println("ZMQ: INIT CALLED");
         new Thread(this).start();
     }
 
     @Override
     public void start() {
-        System.out.println("START CALLED");
-        this.internal.bind(INTERNAL_ADDRESS);
-        this.external.bind(EXTERNAL_ADDRESS);
+        System.out.println("ZMQ: START CALLED");
+        startWorkers();
     }
 
     @Override
     public void stop() {
-        System.out.println("STOP CALLED");
-        this.external.close();
-        this.internal.close();
+        System.out.println("ZMQ: STOP CALLED");
+        stopWorkers();
     }
 
     @Override
     public void shutdown() {
-        System.out.println("SHUTDOWN CALLED");
+        System.out.println("ZMQ: SHUTDOWN CALLED");
+        internal.close();
+        external.close();
         CONTEXT.term();
     }
 
     @Override
     public void run() {
-        System.out.println("RUN CALLED");
+        System.out.println("ZMQ: RUN CALLED");
         ZMQ.proxy(external, internal, null);
     }
     private synchronized void startWorkers (){
-        System.out.println("Starting "+ THREAD_CT +" zmq workers on port " + PORT);
-        while(THREADS.size()<THREAD_CT) {
-            Thread t = new Thread(new Worker(DEPS,CONTEXT,INTERNAL_ADDRESS));
-            THREADS.add(t);
-            t.start();
+        Integer startedCt = 0;
+        System.out.println("ZMQ: Starting "+ THREAD_CT +" workers on port " + PORT);
+        while(WORKERS.size()<THREAD_CT) {
+            Worker w = new Worker(DEPS,CONTEXT,INTERNAL_ADDRESS);
+            WORKERS.add(w);
+            startedCt++;
         }
-        System.out.println("Started "+ THREAD_CT +" zmq workers on port " + PORT);
+        System.out.println("ZMQ: Started "+ startedCt +" workers on port " + PORT);
     }
 
     private synchronized void stopWorkers () {
-        System.out.println("Stopping " + THREADS.size() + " zmq workers on port " + PORT);
-        while(THREADS.size()>0) {
-            Thread t = THREADS.get(0);
-            t.interrupt();
-            THREADS.remove(0);
+        Integer stoppedCt = WORKERS.size();
+        System.out.println("ZMQ: Stopping " + stoppedCt + " workers on port " + PORT);
+        for (Worker w : WORKERS) {
+            w.stop();
         }
-        System.out.println("Stopped " + THREAD_CT + " zmq workers on port " + PORT);
+        WORKERS.clear();
+        System.out.println("ZMQ: Stopped " + stoppedCt + " workers on port " + PORT);
 
     }
 

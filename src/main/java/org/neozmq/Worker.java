@@ -16,6 +16,7 @@ import org.zeromq.ZMQException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Worker implements Runnable {
 
@@ -27,12 +28,14 @@ public class Worker implements Runnable {
     final private NodeResource nodeResource;
     final private NodeSetResource nodeSetResource;
     final private RelResource relResource;
+    final private AtomicBoolean running = new AtomicBoolean(false);
 
     private ZMQ.Context context;
     private String address = null;
     private StringLogger logger = null;
 
-    public Worker( ZmqKernelExtensionFactory.Dependencies deps, ZMQ.Context ctx, String addr ) {
+    public Worker( ZmqKernelExtensionFactory.Dependencies deps, ZMQ.Context ctx, String addr) {
+
         this.uuid = UUID.randomUUID();
         this.database = deps.getGraphDatabaseService();
         this.logger = deps.getStringLogger();
@@ -43,12 +46,14 @@ public class Worker implements Runnable {
         this.nodeResource = new NodeResource(this.database, this.external);
         this.nodeSetResource = new NodeSetResource(this.database, this.external);
         this.relResource = new RelResource(this.database, this.external);
+        new Thread(this).start();
     }
 
     @Override
     public void run() {
+        running.set(true);
         this.external.connect(address);
-        while (!Thread.currentThread().isInterrupted()) {
+        while (running.get()) {
             ArrayList<Request> requests = new ArrayList<>();
             // parse requests
             try {
@@ -67,9 +72,7 @@ public class Worker implements Runnable {
                 send(ex.getResponse());
                 continue;
             } catch (ZMQException ex) {
-                external.close();
-                Thread.currentThread().interrupt();
-                return;
+                break;
             }
             // handle requests
             ArrayList<PropertyContainer> outputValues = new ArrayList<>(requests.size());
@@ -109,6 +112,8 @@ public class Worker implements Runnable {
                 send(ex.getResponse());
                 logger.info("--- Failed transaction in worker " + this.uuid.toString() + " ---");
                 logger.info(Response.BAD_REQUEST + " " + ex.getMessage() );
+            } catch (ZMQException ex) {
+                break;
             } catch (Exception ex) {
                 send(new Response(Response.SERVER_ERROR, ex.getMessage()));
                 logger.info("--- Failed transaction in worker " + this.uuid.toString() + " ---");
@@ -116,7 +121,7 @@ public class Worker implements Runnable {
             } finally {
             }
         }
-        System.out.println("stopping thread");
+        this.external.close();
     }
 
 
@@ -125,6 +130,12 @@ public class Worker implements Runnable {
         String string = response.toString();
         //System.out.println(">>> " + string);
         return external.send(string);
+    }
+
+    public void stop () {
+        if (running.get()) {
+            running.set(false);
+        }
     }
 
 }
