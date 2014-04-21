@@ -8,7 +8,6 @@ import org.neozmq.except.ClientError;
 import org.neozmq.except.ServerError;
 import org.neozmq.resources.NodeResource;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -48,7 +47,7 @@ public class NodeResourceTest extends ResourceTest {
             assertAlice((Node)got);
         }
         sendClose();
-        assert client.recvStr(Charset.defaultCharset()).equals(rs);
+        assert client.recvStr().equals(rs);
     }
 
     @Test
@@ -64,7 +63,7 @@ public class NodeResourceTest extends ResourceTest {
             }
         }
         sendClose();
-        assert client.recvStr(Charset.defaultCharset()).equals(rs);
+        assert client.recvStr().equals(rs);
     }
 
     @Test
@@ -79,7 +78,7 @@ public class NodeResourceTest extends ResourceTest {
             assertAlice((Node)got);
         }
         sendClose();
-        assert client.recvStr(Charset.defaultCharset()).equals(rs);
+        assert client.recvStr().equals(rs);
     }
 
     @Test
@@ -95,7 +94,7 @@ public class NodeResourceTest extends ResourceTest {
             }
         }
         sendClose();
-        assert client.recvStr(Charset.defaultCharset()).equals(rs);
+        assert client.recvStr().equals(rs);
     }
 
     @Test
@@ -114,7 +113,7 @@ public class NodeResourceTest extends ResourceTest {
             assert gotNode.getProperty("age").equals(33);
         }
         sendClose();
-        assert client.recvStr(Charset.defaultCharset()).startsWith("200");
+        assert client.recvStr().startsWith("200");
     }
 
     @Test
@@ -130,7 +129,7 @@ public class NodeResourceTest extends ResourceTest {
             }
         }
         sendClose();
-        assert client.recvStr(Charset.defaultCharset()).equals(rs);
+        assert client.recvStr().equals(rs);
     }
 
     @Test
@@ -146,7 +145,7 @@ public class NodeResourceTest extends ResourceTest {
             assert node.getProperty("name").equals("Alice");
         }
         sendClose();
-        assert client.recvStr(Charset.defaultCharset()).equals(rs);
+        assert client.recvStr().equals(rs);
     }
 
     @Test
@@ -167,7 +166,7 @@ public class NodeResourceTest extends ResourceTest {
             }
         }
         sendClose();
-        assert client.recvStr(Charset.defaultCharset()).equals(rs);
+        assert client.recvStr().equals(rs);
     }
 
 }

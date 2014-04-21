@@ -13,7 +13,6 @@ import org.neozmq.resources.RelResource;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +58,7 @@ public class Worker implements Runnable {
             try {
                 boolean more = true;
                 while (more) {
-                    String frame = external.recvStr(Charset.defaultCharset());
+                    String frame = external.recvStr();
                     for (String line : frame.split("\\r|\\n|\\r\\n")) {
                         if (line.length() > 0) {
                             //System.out.println("<<< " + line);
