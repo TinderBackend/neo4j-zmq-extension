@@ -24,7 +24,13 @@ public class ZmqServer {
         final File directory = new File(args[0]);
         boolean newDB=!directory.exists();
         System.out.println("Using database "+directory+" new "+newDB);
-        final GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(args[0]).setConfig(setting("zmq_enabled",BOOLEAN,"true"),"true").newGraphDatabase();
+        final GraphDatabaseService db =
+                new GraphDatabaseFactory()
+                        .newEmbeddedDatabaseBuilder(args[0])
+                        .setConfig(setting("zmq_enabled",BOOLEAN,"true"),"true")
+                        .setConfig(setting("zmq_threads",INTEGER,"10"),"32")
+                        .setConfig(setting("allow_store_upgrade",BOOLEAN,"true"),"true")
+                        .newGraphDatabase();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

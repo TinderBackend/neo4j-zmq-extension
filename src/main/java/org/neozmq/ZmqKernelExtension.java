@@ -28,10 +28,13 @@ public class ZmqKernelExtension implements Lifecycle, Runnable {
         this.internal = CONTEXT.socket(ZMQ.DEALER);
         this.internal.bind(INTERNAL_ADDRESS);
         this.external.bind(EXTERNAL_ADDRESS);
+        //System.out.println("ZMQ: SETTING HWM");
+        // we want to avoid fs queuing
+        //this.external.setHWM(THREAD_CT*2);
         System.out.println("ZMQ: CONSTRUCTOR CALLED");
     }
     @Override
-    public synchronized void init() throws Throwable {
+    public void init() throws Throwable {
         System.out.println("ZMQ: INIT CALLED");
         new Thread(this).start();
     }
