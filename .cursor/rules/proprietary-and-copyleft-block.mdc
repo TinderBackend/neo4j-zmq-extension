@@ -1,0 +1,15 @@
+---
+description: Prevent the agent from reproducing or imitating proprietary or closed-source software code, even when explicitly prompted.
+alwaysApply: true
+---
+Do not use, suggest, or copy any code that is licensed under a strong copyleft or other restrictive open-source license.
+This includes all of the following:
+- GNU General Public License; e.g. GPL-3.0, GPL-2.0
+- GNU Affero General Public License; e.g. AGPL-3.0
+- GNU Lesser General Public License; e.g. LGPL-3.0, LGPL-2.1
+- Mozilla Public License; e.g. MPL-2.0
+- Eclipse Public License; e.g. EPL-2.0
+- Any other license that requires disclosure of source code or imposes reciprocal licensing obligations when software is distributed, used over a network, or linked.
+
+These licenses impose obligations that conflict with our legal and distribution policies.
+If a suggestion is identical to code that originates from a source under such a license, discard it and find or generate an alternative. Never include code from projects using these licenses, and always ensure all outputs are free from any copyleft or restrictive license obligations.
